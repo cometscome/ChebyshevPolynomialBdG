@@ -1,26 +1,6 @@
 !This code is not finished
 !I have not complied this code yet.
 
- program main
-   implicit none
-   integer::nx,ny,Ln
-   real(8)::mat_delta(nx*ny)
-   real(8),allocatable::mat_h(:,:)
-   real(8)::mu
-   real(8),allocatable::val(:)
-   integer,allocatable::col(:),row(:)
-
-   Ln = nx*ny*2
-
-   call init_delta(nx,ny,mat_delta,0.1d0)   
-   allocate(mat_h(Ln,Ln))
-   mu = 0d0
-
-   call calc_h(nx,ny,mat_h,Ln,mu,mat_delta)
-   call calc_val(Ln,mat_h,val,row,col)
-
-
- end program main
 
  subroutine init_delta(nx,ny,mat_delta,delta)
    implicit none
@@ -58,28 +38,31 @@
 
 
    row(1) = 1
+   vec_i = 0
 
    im = 0
    do i = 1,n
       ip = 0
       do j = 1,n
-         if(mat_h(i,j) .ne. 0d0) then
+         if(abs(mat_h(i,j)) .ne. 0d0) then
+!            write(*,*) i,j,mat_h(i,j)
             ip = ip + 1
          end if
       end do
       vec_i(i) = ip
+!      write(*,*) ip
       im = im + ip
       row(i+1) = im
    end do
 
    im = sum(vec_i)
    allocate(val(im),col(im))
-
+   write(*,*) im
 
    do i = 1,n
       ip = 0
       do j = 1,n
-         if(mat_h(i,j) .ne. 0d0) then
+         if(abs(mat_h(i,j)) .ne. 0d0) then
             ip = ip + 1
             val(ip) = mat_h(i,j)
             col(ip) = j
@@ -98,7 +81,9 @@
    integer,intent(in)::nx,ny,Ln
    real(8),intent(in)::mu,mat_delta(nx*ny)
    real(8),intent(out)::mat_h(1:Ln,1:Ln)
-   integer::jx,jy,ii,jj
+   integer::jx,jy,ii,jj,ix,iy
+   integer::xy2i
+   external xy2i
 
    mat_h = 0d0
 
@@ -108,6 +93,7 @@
          jx = ix
          jy = iy
          jj = xy2i(jx,jy,nx)
+
          mat_h(ii,jj) = -mu
 
          jx = ix +1 
@@ -148,11 +134,50 @@
    do ii = 1,Nx*Ny
       do jj = 1,Nx*Ny
          mat_h(ii+Nx*Ny,jj+Nx*Ny) = - mat_h(ii,jj)
-         mat_h(ii,jj+Nx*Ny) = mat_delta(ii)
-         mat_h(ii+Nx*Ny,jj) = mat_delta(ii)
       end do
+      mat_h(ii,ii+Nx*Ny) = mat_delta(ii)
+      mat_h(ii+Nx*Ny,ii) = mat_delta(ii)
+ 
    end do
+!   write(*,*) mat_h
 
 
    return
  end subroutine calc_h
+
+
+ program main
+
+   implicit none
+   interface
+      subroutine calc_val(Ln,mat_h,val,row,col)
+        integer,intent(in)::Ln
+        real(8),intent(in)::mat_h(:,:)
+        real(8),allocatable,intent(out)::val(:)
+        integer,allocatable,intent(out)::row(:),col(:)
+      end subroutine calc_val
+   end interface
+
+   integer::nx,ny,Ln
+   real(8),allocatable::mat_delta(:)
+   real(8),allocatable::mat_h(:,:)
+   real(8)::mu
+   real(8),allocatable::val(:)
+   integer,allocatable::col(:),row(:)
+
+   nx = 20
+   ny = 20
+   Ln = nx*ny*2
+   allocate(mat_delta(nx*ny))
+
+   call init_delta(nx,ny,mat_delta,0.1d0)   
+   allocate(mat_h(Ln,Ln))
+   mu = 1d-12
+
+   call calc_h(nx,ny,mat_h,Ln,mu,mat_delta)
+   call calc_val(Ln,mat_h,val,row,col)
+
+!   write(*,*) val
+
+ end program main
+
