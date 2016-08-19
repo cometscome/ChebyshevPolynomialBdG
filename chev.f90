@@ -1,4 +1,5 @@
 !This code is not finished
+!I have not complied this code yet.
 
  program main
    implicit none
@@ -36,7 +37,7 @@
 
  function xy2i(ix,iy,Nx)
    implicit none
-   real(8)::xy2i
+   integer::xy2i
    integer::ix,iy,Nx
 
    xy2i = (iy-1)*Nx + ix
