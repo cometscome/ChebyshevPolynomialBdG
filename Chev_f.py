@@ -281,7 +281,7 @@ def calc_polynomials(nc,left_i,right_j,A,Ln):
         vec_jnmm = vec_jnm
         vec_jnm = vec_jn
     return vec_ai
-
+ 
 
 
 def main():

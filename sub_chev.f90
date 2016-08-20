@@ -69,7 +69,7 @@ subroutine calcsgap(i,val,row,col,valsize,N,aa,bb,nc,omegac,sgap)
             vec_jn(right_j) = 1d0
          else if(nn == 1) then
             call matvec(vec_jn,val,row,col,N,valsize,vec_temp)
-            vec_jn = vec_temp
+            vec_jn = vec_temp 
          else 
             call matvec(vec_jnm,val,row,col,N,valsize,vec_temp)
             vec_jn = 2d0*vec_temp - vec_jnmm
