@@ -168,6 +168,44 @@ def calc_A2(A2,Nx,Ny,mu,vec_delta,aa):
 #    print(A)
     return A
 
+def calc_A3(A2,Nx,Ny,mu,vec_delta,aa):
+    Ln = Nx*Ny*2
+#    vec_delta2 = vec_delta.tocsr()
+
+    for i in range(Nx*Ny):
+        j = A2.indptr[i]
+        j2 = A2.indptr[i+1]
+        for j3 in range(j2-j):
+            j4 = j + j3
+#            print "j4",j4
+            jj = A2.indices[j4]
+#            print jj
+
+            if jj>Nx*Ny-1:
+                A2.data[j4] = vec_delta[i,jj-Nx*Ny]/aa
+
+#    print "(^_-)"
+
+    for i in range(Nx*Ny):
+        j = A2.indptr[i+Nx*Ny]
+        j2 = A2.indptr[i+1+Nx*Ny]
+#        print j,j2
+        for j3 in range(j2-j):
+            j4 = j + j3
+#            print "j4",j4
+            jj = A2.indices[j4]
+#            print jj
+            if jj <Nx*Ny:
+                A2.data[j4] = vec_delta[jj,i]/aa                
+#            print jj
+
+
+
+
+
+    return A2
+
+
 
 def iteration(nc,Nx,Ny,aa,bb,omegac,U,full,fortran):
     Ln = Nx*Ny*2
@@ -189,7 +227,8 @@ def iteration(nc,Nx,Ny,aa,bb,omegac,U,full,fortran):
         vec_delta = vec_delta*U
 
 #        A = calc_A(Nx,Ny,1e-12,vec_delta,10.0)
-        A = calc_A2(A,Nx,Ny,1e-12,vec_delta,10.0)
+#        A = calc_A2(A,Nx,Ny,1e-12,vec_delta,10.0)
+        A = calc_A3(A,Nx,Ny,1e-12,vec_delta,10.0)
         eps = 0.0
         nor = 0.0
 
@@ -289,8 +328,8 @@ def main():
 #        print("test")
 
     nc = 1000
-    nx = 6
-    ny = 6
+    nx = 40
+    ny = 40
     vec_delta = init_delta(nx,ny,0.1)
 
 
